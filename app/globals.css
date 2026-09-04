@@ -34,3 +34,83 @@ body {
     scrollbar-width: none;
   }
 }
+
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heart-float {
+  0%, 100% {
+    transform: translateY(0) rotate(-8deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(8deg);
+  }
+}
+
+@keyframes scroll-hint {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(7px);
+  }
+}
+
+.hero-reveal {
+  animation: hero-reveal 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.polaroid-reveal {
+  opacity: 0;
+  transform: translateY(42px) rotate(-2deg);
+  transition:
+    opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.polaroid-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) rotate(0deg);
+}
+
+.letter-reveal {
+  animation: hero-reveal 900ms 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.heart-float {
+  animation: heart-float 4s ease-in-out infinite;
+}
+
+.heart-float-delayed {
+  animation: heart-float 5s 1.2s ease-in-out infinite;
+}
+
+.scroll-hint {
+  animation: scroll-hint 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-reveal,
+  .polaroid-reveal,
+  .letter-reveal,
+  .heart-float,
+  .heart-float-delayed,
+  .scroll-hint {
+    animation: none;
+  }
+
+  .polaroid-reveal,
+  .polaroid-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

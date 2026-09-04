@@ -24,6 +24,18 @@ const dadosMockPolaroide = {
     { 
       url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=600&auto=format&fit=crop", 
       legenda: "Dizendo sim para o nosso futuro ❤️" 
+    },
+    {
+      url: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=600&auto=format&fit=crop",
+      legenda: "Um abraço que sempre parece casa"
+    },
+    {
+      url: "https://images.unsplash.com/photo-1494774157365-9e04c6720e47?q=80&w=600&auto=format&fit=crop",
+      legenda: "Colecionando sorrisos ao seu lado"
+    },
+    {
+      url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=600&auto=format&fit=crop",
+      legenda: "Que venham muitos outros capítulos"
     }
   ],
   textoPoema: "Cada momento ao seu lado é como uma fotografia perfeita que eu quero guardar para sempre. Construir essa história com você é a melhor aventura da minha vida. Te amo!",

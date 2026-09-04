@@ -294,15 +294,15 @@ export default function CriarPresentePage() {
             {!musicaSelecionada ? (
               <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200">
                 <label className="block text-sm font-semibold text-zinc-700 mb-1">Buscar música no Spotify</label>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <input 
                     type="text" 
                     value={termoBusca}
                     onChange={(e) => setTermoBusca(e.target.value)}
                     placeholder="Ex: Stand By Me - Ben E. King" 
-                    className="flex-grow border border-zinc-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="min-w-0 w-full flex-1 border border-zinc-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none"
                   />
-                  <button onClick={buscarMusica} type="button" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-lg transition">
+                  <button onClick={buscarMusica} type="button" className="w-full shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-lg transition sm:w-auto">
                     {buscando ? 'Buscando...' : 'Buscar'}
                   </button>
                 </div>

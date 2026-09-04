@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import TemaPolaroide from './components/modelos/ModeloPolaroid';
+import { modelosDisponiveis, type ConfiguracaoModelo, type ModeloId } from './components/modelos';
+import imagemQrCodeEmail from '../public/qr-code-email.png';
+import imagemQrCodeBuque from '../public/qr-code-buque.png';
 
 const dadosMockPolaroide = {
   nomeComprador: "João",
@@ -26,8 +30,12 @@ const dadosMockPolaroide = {
   idMusicaSpotify: "3SdTKo2uVsxFblQjpScoHy"
 };
 
+const modelosDoCarrossel = Object.entries(modelosDisponiveis) as Array<
+  [ModeloId, ConfiguracaoModelo]
+>;
+
 export default function LandingPage() {
-  const [demoAberta, setDemoAberta] = useState<string | null>(null);
+  const [demoAberta, setDemoAberta] = useState<ModeloId | null>(null);
 
   useEffect(() => {
     if (!demoAberta) return;
@@ -44,7 +52,7 @@ export default function LandingPage() {
     <main className="flex flex-col min-h-screen bg-black text-zinc-100 font-sans overflow-x-hidden relative">
       
       {/* Modal de Demonstração do Tema */}
-      {demoAberta === 'retro' && (
+      {demoAberta === 'polaroid' && (
         <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex flex-col animate-fade-in">
           <div className="absolute top-0 left-0 w-full h-16 bg-black/80 backdrop-blur-md z-[300] flex items-center justify-between px-6 border-b border-white/10 shadow-xl">
             <span className="text-white/70 font-medium text-sm tracking-widest uppercase">Modo Demonstração</span>
@@ -79,61 +87,101 @@ export default function LandingPage() {
         </Link>
       </section>
 
-      {/* 2. Carrossel de Modelos */}
-      <section className="py-16 px-4">
-        <h2 className="text-2xl font-bold text-center mb-8 text-zinc-200">
-          Veja como a página fica incrível
-        </h2>
-        <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory hide-scrollbar">
-          
-          <div className="min-w-[85vw] md:min-w-[300px] bg-zinc-900 p-4 rounded-3xl shadow-lg snap-center flex flex-col items-center border border-red-950/50">
-            <div className="w-full h-56 bg-zinc-950 rounded-2xl mb-4 flex items-center justify-center border border-red-900/20">
-              <span className="text-red-500/70 font-medium">✨ Visual Romance Intenso</span>
+      {/* 2. Como funciona */}
+      <section className="border-y border-red-950/30 bg-zinc-950 px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.3em] text-red-500">Simples e inesquecível</p>
+            <h2 className="text-3xl font-black text-zinc-100 md:text-4xl">Como funciona?</h2>
+          </div>
+
+          <div className="space-y-8">
+            <article className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-900 p-5 shadow-2xl sm:p-8">
+              <div className="mb-7 flex items-start gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-600 text-xl font-black text-white shadow-lg shadow-red-950/50">1</span>
+                <div>
+                  <h3 className="text-xl font-black text-white sm:text-2xl">Escolha o modelo perfeito</h3>
+                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-base">Deslize para conhecer todos os modelos disponíveis e veja, na vertical, como a página ficará no celular.</p>
+                </div>
+              </div>
+
+              <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 hide-scrollbar">
+                {modelosDoCarrossel.map(([modeloId, modelo]) => (
+                  <button
+                    key={modeloId}
+                    type="button"
+                    onClick={() => setDemoAberta(modeloId)}
+                    className="group min-w-[82vw] snap-center text-left sm:min-w-[310px]"
+                    aria-label={`Ver demonstração do ${modelo.nome}`}
+                  >
+                    <div className="mx-auto w-full max-w-[310px] rounded-[2.5rem] border-[7px] border-zinc-800 bg-[#f5f2eb] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition duration-300 group-hover:-translate-y-1 group-hover:border-red-900">
+                      <div className="mb-3 flex justify-center"><span className="h-1.5 w-16 rounded-full bg-zinc-300" /></div>
+                      <div className="overflow-hidden rounded-[1.75rem] bg-[#f5f2eb] px-4 pb-5 pt-6 text-center text-zinc-900">
+                        <p className="font-serif text-xs italic text-red-700">João & Ana</p>
+                        <h4 className="mt-1 font-serif text-lg font-black">Nossa história de amor</h4>
+                        <div className="relative mx-auto mt-5 h-56 max-w-[220px]">
+                          <div className="absolute left-2 top-1 w-28 -rotate-6 bg-white p-2 pb-7 shadow-xl">
+                            <div className="h-24 bg-gradient-to-br from-red-200 via-rose-400 to-red-900" />
+                          </div>
+                          <div className="absolute right-1 top-16 w-28 rotate-6 bg-white p-2 pb-7 shadow-xl">
+                            <div className="h-24 bg-gradient-to-br from-amber-100 via-red-300 to-rose-800" />
+                          </div>
+                          <span className="absolute left-1/2 top-20 -translate-x-1/2 text-3xl drop-shadow">❤️</span>
+                        </div>
+                        <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-red-700">Juntos há</p>
+                          <p className="mt-1 font-serif text-sm font-black">1 ano • 2 meses • 12 dias</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mx-auto mt-5 flex max-w-[310px] items-center justify-between gap-3">
+                      <span className="font-bold text-zinc-100">{modelo.nome}</span>
+                      <span className="shrink-0 text-sm font-bold text-red-500 transition group-hover:text-red-400">Ver modelo →</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </article>
+
+            <div className="grid gap-8 lg:grid-cols-2">
+              <article className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-900 shadow-2xl">
+                <div className="flex items-start gap-4 p-5 sm:p-8">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-600 text-xl font-black text-white shadow-lg shadow-red-950/50">2</span>
+                  <div>
+                    <h3 className="text-xl font-black text-white sm:text-2xl">Receba tudo por e-mail</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-zinc-400 sm:text-base">Após a confirmação do pagamento, enviamos o link exclusivo e o QR Code diretamente para você.</p>
+                  </div>
+                </div>
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <Image
+                    src={imagemQrCodeEmail}
+                    alt="Celular exibindo por e-mail o QR Code do presente"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover transition duration-700 hover:scale-105"
+                  />
+                </div>
+              </article>
+
+              <article className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-900 shadow-2xl">
+                <div className="flex items-start gap-4 p-5 sm:p-8">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-600 text-xl font-black text-white shadow-lg shadow-red-950/50">3</span>
+                  <div>
+                    <h3 className="text-xl font-black text-white sm:text-2xl">Transforme em uma surpresa</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-zinc-400 sm:text-base">Imprima o QR Code, coloque no buquê ou em outro presente e prepare-se para viver a reação.</p>
+                  </div>
+                </div>
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <Image
+                    src={imagemQrCodeBuque}
+                    alt="QR Code impresso preso a um buquê de flores vermelhas e brancas"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover transition duration-700 hover:scale-105"
+                  />
+                </div>
+              </article>
             </div>
-            <h3 className="font-bold text-xl mb-1 text-zinc-100">Estilo Clássico</h3>
-            <button className="mt-3 text-zinc-500 font-semibold cursor-not-allowed">
-              Em breve
-            </button>
-          </div>
-
-          {/* Card Estilo Retrô */}
-          <div 
-            onClick={() => setDemoAberta('retro')}
-            className="min-w-[85vw] md:min-w-[300px] bg-zinc-900 p-4 rounded-3xl shadow-lg snap-center flex flex-col items-center border border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.15)] relative cursor-pointer group"
-          >
-            <div className="absolute -top-3 -right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Popular</div>
-            
-            <div className="w-full h-56 bg-[#F5F2EB] rounded-2xl mb-4 flex items-center justify-center border border-zinc-300/50 shadow-inner overflow-hidden transition-transform transform group-hover:scale-[1.02]">
-               <div className="flex gap-2 rotate-3">
-                 <div className="w-16 h-20 bg-white p-1 shadow-md -rotate-6"><div className="w-full h-14 bg-zinc-300"></div></div>
-                 <div className="w-16 h-20 bg-white p-1 shadow-md rotate-3 translate-y-2"><div className="w-full h-14 bg-zinc-400"></div></div>
-               </div>
-            </div>
-            
-            <h3 className="font-bold text-xl mb-1 text-zinc-100">Estilo Retrô (Polaroid)</h3>
-            <span className="mt-3 text-red-500 font-semibold group-hover:text-red-400 transition-colors">
-              Ver demonstração real ➔
-            </span>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 3. Como Entregar */}
-      <section className="py-16 px-6 bg-zinc-950 flex flex-col items-center text-center border-t border-b border-red-950/30">
-        <h2 className="text-2xl font-bold mb-10 text-zinc-200">Como entregar o presente?</h2>
-        <div className="flex flex-col gap-8 max-w-sm w-full">
-          <div className="flex items-center gap-5 text-left">
-            <div className="w-14 h-14 flex-shrink-0 bg-red-950/50 border border-red-900/40 text-red-500 rounded-full flex items-center justify-center font-black text-2xl shadow-inner">1</div>
-            <p className="text-zinc-300 font-medium">Você cria e personaliza a página exclusiva do casal.</p>
-          </div>
-          <div className="flex items-center gap-5 text-left">
-            <div className="w-14 h-14 flex-shrink-0 bg-red-950/50 border border-red-900/40 text-red-500 rounded-full flex items-center justify-center font-black text-2xl shadow-inner">2</div>
-            <p className="text-zinc-300 font-medium">Nós geramos um QR Code e um link único para você.</p>
-          </div>
-          <div className="flex items-center gap-5 text-left">
-            <div className="w-14 h-14 flex-shrink-0 bg-red-950/50 border border-red-900/40 text-red-500 rounded-full flex items-center justify-center font-black text-2xl shadow-inner">3</div>
-            <p className="text-zinc-300 font-medium">Imprima, coloque em um cartão físico e veja a reação!</p>
           </div>
         </div>
       </section>

@@ -12,7 +12,7 @@ type Props = {
 type Estado =
   | { tipo: 'processando'; mensagem: string }
   | { tipo: 'erro'; mensagem: string }
-  | { tipo: 'sucesso'; presenteId: string };
+  | { tipo: 'sucesso'; presenteId: string; emailEnviado: boolean };
 
 export default function FinalizarPagamento({ pagamentoId, referencia }: Props) {
   const [estado, setEstado] = useState<Estado>({
@@ -42,6 +42,7 @@ export default function FinalizarPagamento({ pagamentoId, referencia }: Props) {
         const formData = new FormData();
         formData.append('nomeComprador', rascunho.nomeComprador);
         formData.append('nomePresenteado', rascunho.nomePresenteado);
+        formData.append('emailEntrega', rascunho.emailEntrega);
         formData.append('dataInicioNamoro', rascunho.dataInicioNamoro);
         formData.append('textoPoema', rascunho.textoPoema);
         formData.append('idMusicaSpotify', rascunho.idMusicaSpotify);
@@ -54,14 +55,25 @@ export default function FinalizarPagamento({ pagamentoId, referencia }: Props) {
         });
 
         const resposta = await fetch('/api/presentes', { method: 'POST', body: formData });
-        const resultado = (await resposta.json()) as { success?: boolean; id?: string; error?: string };
+        const resultado = (await resposta.json()) as {
+          success?: boolean;
+          id?: string;
+          emailEnviado?: boolean;
+          error?: string;
+        };
 
         if (!resposta.ok || !resultado.success || !resultado.id) {
           throw new Error(resultado.error || 'Não foi possível publicar o presente.');
         }
 
         await excluirRascunhoPagamento(referencia);
-        if (!cancelado) setEstado({ tipo: 'sucesso', presenteId: resultado.id });
+        if (!cancelado) {
+          setEstado({
+            tipo: 'sucesso',
+            presenteId: resultado.id,
+            emailEnviado: resultado.emailEnviado === true,
+          });
+        }
       } catch (error) {
         if (!cancelado) {
           setEstado({
@@ -83,7 +95,11 @@ export default function FinalizarPagamento({ pagamentoId, referencia }: Props) {
       <div className="text-center">
         <div className="mb-5 text-6xl">❤️</div>
         <h1 className="text-3xl font-black text-zinc-900">Seu presente está pronto!</h1>
-        <p className="mt-3 text-zinc-600">Pagamento confirmado e página publicada com sucesso.</p>
+        <p className="mt-3 text-zinc-600">
+          {estado.emailEnviado
+            ? 'Pagamento confirmado. Enviamos o link e o QR Code para o e-mail informado.'
+            : 'Pagamento confirmado e página publicada. O e-mail não pôde ser enviado, mas você já pode abrir o presente abaixo.'}
+        </p>
         <Link
           href={`/presente/${estado.presenteId}`}
           className="mt-8 inline-flex rounded-full bg-red-600 px-8 py-4 font-bold text-white shadow-lg transition hover:bg-red-700"

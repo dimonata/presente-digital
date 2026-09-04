@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
+import { enviarPresentePorEmail } from '@/lib/enviarPresentePorEmail';
 
 const PRECO_PRESENTE = 29.9;
-const TAMANHO_MAXIMO_FOTO = 5 * 1024 * 1024;
-const TIPOS_DE_FOTO_ACEITOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const TAMANHO_MAXIMO_FOTO = 500 * 1024;
+const TIPOS_DE_FOTO_ACEITOS = ['image/jpeg'];
 
 type PagamentoMercadoPago = {
   id?: number;
@@ -12,6 +13,15 @@ type PagamentoMercadoPago = {
   transaction_amount?: number;
   currency_id?: string;
 };
+
+async function tentarEnviarPresentePorEmail(parametros: Parameters<typeof enviarPresentePorEmail>[0]) {
+  try {
+    return await enviarPresentePorEmail(parametros);
+  } catch (error) {
+    console.error('Erro inesperado ao preparar o e-mail do presente:', error);
+    return false;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -24,6 +34,7 @@ export async function POST(request: Request) {
 
     const nomeComprador = formData.get('nomeComprador') as string;
     const nomePresenteado = formData.get('nomePresenteado') as string;
+    const emailEntrega = formData.get('emailEntrega');
     const dataInicioNamoro = formData.get('dataInicioNamoro') as string;
     const textoPoema = formData.get('textoPoema') as string;
     const idMusicaSpotify = formData.get('idMusicaSpotify') as string;
@@ -33,6 +44,8 @@ export async function POST(request: Request) {
     if (
       !nomeComprador ||
       !nomePresenteado ||
+      typeof emailEntrega !== 'string' ||
+      !/^\S+@\S+\.\S+$/.test(emailEntrega) ||
       !dataInicioNamoro ||
       !textoPoema ||
       !idMusicaSpotify ||
@@ -75,7 +88,13 @@ export async function POST(request: Request) {
     });
 
     if (presenteExistente) {
-      return NextResponse.json({ success: true, id: presenteExistente.id });
+      const emailEnviado = await tentarEnviarPresentePorEmail({
+        email: emailEntrega,
+        nomePresenteado,
+        presenteId: presenteExistente.id,
+        pagamentoId,
+      });
+      return NextResponse.json({ success: true, id: presenteExistente.id, emailEnviado });
     }
 
     const fotosParaSalvar = [];
@@ -117,7 +136,14 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ success: true, id: novoPresente.id });
+    const emailEnviado = await tentarEnviarPresentePorEmail({
+      email: emailEntrega,
+      nomePresenteado,
+      presenteId: novoPresente.id,
+      pagamentoId,
+    });
+
+    return NextResponse.json({ success: true, id: novoPresente.id, emailEnviado });
 
   } catch (error) {
     console.error("Erro ao salvar presente:", error);

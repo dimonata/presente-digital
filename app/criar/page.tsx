@@ -20,13 +20,54 @@ type FotoFormulario = {
 const criarFotosVazias = (): FotoFormulario[] =>
   Array.from({ length: 6 }, () => ({ arquivo: null, preview: '', legenda: '' }));
 
-const TAMANHO_MAXIMO_FOTO = 5 * 1024 * 1024;
+const TAMANHO_MAXIMO_FOTO = 10 * 1024 * 1024;
+const TAMANHO_OTIMIZADO_FOTO = 450 * 1024;
 const TIPOS_DE_FOTO_ACEITOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+async function otimizarFoto(arquivo: File) {
+  const url = URL.createObjectURL(arquivo);
+
+  try {
+    const imagem = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const elemento = new Image();
+      elemento.onload = () => resolve(elemento);
+      elemento.onerror = () => reject(new Error('Não foi possível ler esta imagem.'));
+      elemento.src = url;
+    });
+
+    const escala = Math.min(1, 900 / Math.max(imagem.naturalWidth, imagem.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(imagem.naturalWidth * escala));
+    canvas.height = Math.max(1, Math.round(imagem.naturalHeight * escala));
+
+    const contexto = canvas.getContext('2d');
+    if (!contexto) throw new Error('Seu navegador não conseguiu preparar a foto.');
+
+    contexto.fillStyle = '#ffffff';
+    contexto.fillRect(0, 0, canvas.width, canvas.height);
+    contexto.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+
+    let blob: Blob | null = null;
+    for (const qualidade of [0.82, 0.72, 0.62, 0.52, 0.42]) {
+      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', qualidade));
+      if (blob && blob.size <= TAMANHO_OTIMIZADO_FOTO) break;
+    }
+
+    if (!blob || blob.size > TAMANHO_OTIMIZADO_FOTO) {
+      throw new Error('Não foi possível reduzir esta foto. Escolha uma imagem menor.');
+    }
+
+    return new File([blob], `${arquivo.name.replace(/\.[^.]+$/, '')}.jpg`, { type: 'image/jpeg' });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 export default function CriarPresentePage() {
   // Estados básicos
   const [nomeComprador, setNomeComprador] = useState('');
   const [nomePresenteado, setNomePresenteado] = useState('');
+  const [emailEntrega, setEmailEntrega] = useState('');
   const [dataInicioNamoro, setDataInicioNamoro] = useState('');
   const [textoPoema, setTextoPoema] = useState('');
   
@@ -43,7 +84,7 @@ export default function CriarPresentePage() {
   const [fotos, setFotos] = useState<FotoFormulario[]>(criarFotosVazias);
 
   // Função para lidar com o Upload da Imagem
-  const handleUploadFoto = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadFoto = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!TIPOS_DE_FOTO_ACEITOS.includes(file.type)) {
@@ -53,17 +94,25 @@ export default function CriarPresentePage() {
       }
 
       if (file.size > TAMANHO_MAXIMO_FOTO) {
-        alert('Cada foto pode ter no máximo 5 MB.');
+        alert('Cada foto original pode ter no máximo 10 MB.');
         e.target.value = '';
         return;
       }
 
-      // Cria uma URL temporária para mostrar a imagem na tela antes de enviar pro banco
-      const previewUrl = URL.createObjectURL(file);
-      
-      const novasFotos = [...fotos];
-      novasFotos[index] = { ...novasFotos[index], arquivo: file, preview: previewUrl };
-      setFotos(novasFotos);
+      try {
+        const fotoOtimizada = await otimizarFoto(file);
+        const previewUrl = URL.createObjectURL(fotoOtimizada);
+
+        setFotos((fotosAtuais) => {
+          const novasFotos = [...fotosAtuais];
+          if (novasFotos[index].preview) URL.revokeObjectURL(novasFotos[index].preview);
+          novasFotos[index] = { ...novasFotos[index], arquivo: fotoOtimizada, preview: previewUrl };
+          return novasFotos;
+        });
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Não foi possível preparar a foto.');
+        e.target.value = '';
+      }
     }
   };
 
@@ -125,6 +174,7 @@ export default function CriarPresentePage() {
       await salvarRascunhoPagamento(resultado.referencia, {
         nomeComprador,
         nomePresenteado,
+        emailEntrega,
         dataInicioNamoro,
         textoPoema,
         idMusicaSpotify: musicaSelecionada.id,
@@ -223,6 +273,18 @@ export default function CriarPresentePage() {
               <label className="block text-sm font-semibold text-zinc-700 mb-1">Data de Início do Relacionamento</label>
               <input type="date" required value={dataInicioNamoro} onChange={(e) => setDataInicioNamoro(e.target.value)} className="w-full border border-zinc-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-500 outline-none" />
             </div>
+            <div>
+              <label className="block text-sm font-semibold text-zinc-700 mb-1">E-mail para receber o presente</label>
+              <input
+                type="email"
+                required
+                value={emailEntrega}
+                onChange={(e) => setEmailEntrega(e.target.value)}
+                placeholder="voce@exemplo.com"
+                className="w-full border border-zinc-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-500 outline-none"
+              />
+              <p className="mt-1 text-xs text-zinc-500">Enviaremos o link e o QR Code após a confirmação do pagamento.</p>
+            </div>
           </section>
 
           {/* Seção 2: Busca no Spotify */}
@@ -280,7 +342,7 @@ export default function CriarPresentePage() {
           {/* Seção 3: Upload de Fotos */}
           <section className="space-y-4">
             <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">3. Suas 6 Fotos (Upload)</h2>
-            <p className="text-xs text-zinc-500">Envie arquivos JPG, PNG, WEBP ou GIF de até 5 MB cada.</p>
+            <p className="text-xs text-zinc-500">Envie arquivos JPG, PNG, WEBP ou GIF de até 10 MB. As fotos serão otimizadas automaticamente.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {fotos.map((foto, index) => (

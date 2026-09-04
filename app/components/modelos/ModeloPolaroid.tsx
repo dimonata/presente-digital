@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import SpotifyPlayer from '../SpotifyPlayer';
 
 export interface ModeloProps {
   presente?: {
@@ -113,15 +114,7 @@ export default function ModeloPolaroid({ presente, dados: dadosProp, isDemo = fa
       
       {/* Spotify Player */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[360px] h-[80px] shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-xl overflow-hidden border border-zinc-300/60 bg-white/90 backdrop-blur-md transition-transform hover:scale-105">
-        <iframe 
-          style={{ borderRadius: '12px' }} 
-          src={`https://open.spotify.com/embed/track/${info.idMusicaSpotify}?utm_source=generator&theme=0`} 
-          width="100%" 
-          height="80" 
-          frameBorder="0" 
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-          loading="lazy"
-        ></iframe>
+        <SpotifyPlayer trackId={info.idMusicaSpotify} />
       </div>
 
       <header className="pt-20 pb-12 px-6 text-center">

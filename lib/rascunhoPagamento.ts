@@ -3,6 +3,7 @@
 export type RascunhoPagamento = {
   nomeComprador: string;
   nomePresenteado: string;
+  emailEntrega: string;
   dataInicioNamoro: string;
   textoPoema: string;
   idMusicaSpotify: string;

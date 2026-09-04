@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Presente {
+  id               String   @id @default(cuid()) // Gera um ID único aleatório (ex: clh123abc...)
+  modelo           String   @default("polaroid")
+  nomeComprador    String
+  nomePresenteado  String
+  dataInicioNamoro String
+  textoPoema       String
+  idMusicaSpotify  String
+  pagamentoId      String?  @unique
+  criadoEm         DateTime @default(now())
+
+  // Relação: Um presente tem várias fotos
+  fotos Foto[]
+}
+
+model Foto {
+  id      String @id @default(cuid())
+  url     String // Vai guardar o link da imagem
+  legenda String
+
+  // Relação com a tabela Presente
+  presente   Presente @relation(fields: [presenteId], references: [id], onDelete: Cascade)
+  presenteId String
+}

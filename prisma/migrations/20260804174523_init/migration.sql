@@ -6,7 +6,7 @@ CREATE TABLE "Presente" (
     "dataInicioNamoro" TEXT NOT NULL,
     "textoPoema" TEXT NOT NULL,
     "idMusicaSpotify" TEXT NOT NULL,
-    "criadoEm" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable

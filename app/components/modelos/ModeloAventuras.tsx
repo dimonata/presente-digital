@@ -7,6 +7,15 @@ import type { ModeloProps } from './ModeloPolaroid';
 
 const fotoFallback = 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=900&auto=format&fit=crop';
 
+const baloesDecorativos = [
+  { cor: '#b43f3a', esquerda: '4%', topo: '4%', duracao: '6.8s', atraso: '0s' },
+  { cor: '#d5a62f', esquerda: '88%', topo: '11%', duracao: '7.4s', atraso: '-2s' },
+  { cor: '#3f7780', esquerda: '7%', topo: '29%', duracao: '8.2s', atraso: '-4s' },
+  { cor: '#658650', esquerda: '91%', topo: '42%', duracao: '7.1s', atraso: '-1s' },
+  { cor: '#b35d35', esquerda: '3%', topo: '63%', duracao: '8.6s', atraso: '-5s' },
+  { cor: '#76517e', esquerda: '89%', topo: '79%', duracao: '7.8s', atraso: '-3s' },
+] as const;
+
 function calcularTempo(dataInicioNamoro: string) {
   const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(dataInicioNamoro);
   const inicio = partes
@@ -109,7 +118,7 @@ function FotoAlbum({
           )}
         </div>
         <figcaption className="px-2 pt-5 text-center font-serif text-lg font-bold italic leading-snug text-[#493522] sm:text-xl">
-          {foto.legenda || `Aventura número ${index + 1}`}
+          {foto.legenda}
         </figcaption>
       </div>
       <span className="absolute -right-3 -top-5 rotate-12 rounded-full border-2 border-dashed border-[#b45235] bg-[#e6c264] px-3 py-2 text-xs font-black text-[#56351f] shadow" aria-hidden="true">
@@ -124,15 +133,16 @@ export default function ModeloAventuras({ presente, dados, isDemo = false, isPre
     nomeComprador: 'João',
     nomePresenteado: 'Maria',
     dataInicioNamoro: '2024-01-01',
-    textoPoema: 'A vida ao seu lado é a maior de todas as aventuras. E o melhor capítulo ainda está por vir.',
+    textoPoema: '',
     idMusicaSpotify: '4uLUJ41p8tC6f0V1d9o0v4',
-    fotos: Array.from({ length: 6 }, (_, index) => ({ url: fotoFallback, legenda: `Nossa aventura ${index + 1}` })),
+    fotos: Array.from({ length: 6 }, () => ({ url: fotoFallback, legenda: '' })),
   };
 
   const tempo = calcularTempo(info.dataInicioNamoro);
   const fotos = info.fotos.slice(0, 6);
   const paginas = Array.from({ length: 3 }, (_, pagina) => fotos.slice(pagina * 2, pagina * 2 + 2));
-  const coresBaloes = ['#d84a3a', '#e3b23c', '#4a8f9d', '#739c58', '#e47a45', '#8d5a9f'];
+  const letrasAventuras = 'AVENTURAS'.split('');
+  const coresLetras = ['#d65446', '#e3b846', '#efe1ba', '#d65446', '#e3b846', '#efe1ba', '#d65446', '#e3b846', '#efe1ba'];
 
   return (
     <main className="aventura-table relative min-h-screen overflow-x-hidden pb-32 text-[#3f2d1e] selection:bg-amber-200">
@@ -141,42 +151,52 @@ export default function ModeloAventuras({ presente, dados, isDemo = false, isPre
         <SpotifyPlayer trackId={info.idMusicaSpotify} />
       </div>
 
-      <header className="relative flex min-h-screen items-center justify-center px-4 py-16 sm:px-8">
-        <div className="aventura-cover aventura-cover-enter relative w-full max-w-3xl overflow-hidden rounded-r-[2.5rem] border-[10px] border-[#3b291c] px-7 py-16 shadow-[18px_24px_55px_rgba(42,25,13,0.45)] sm:px-16 sm:py-20">
-          <div className="absolute inset-y-0 left-0 w-8 border-r-2 border-black/30 bg-[#35251a] shadow-[inset_-5px_0_10px_rgba(0,0,0,0.3)] sm:w-12" />
-          <div className="absolute left-1 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-16 sm:left-3" aria-hidden="true">
-            {[0, 1, 2].map((argola) => (
-              <span key={argola} className="block h-8 w-8 rounded-full border-[7px] border-[#d1a55d] bg-[#23170f] shadow-[inset_0_2px_3px_#000,0_2px_4px_#0008]" />
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        {baloesDecorativos.map((balao, index) => (
+          <span
+            key={`${balao.cor}-${index}`}
+            className="aventura-floating-balloon"
+            style={{
+              backgroundColor: balao.cor,
+              left: balao.esquerda,
+              top: balao.topo,
+              animationDuration: balao.duracao,
+              animationDelay: balao.atraso,
+            }}
+          />
+        ))}
+      </div>
+
+      <header className="relative z-10 flex min-h-screen items-center justify-center px-4 py-16 sm:px-8">
+        <div className="aventura-cover aventura-cover-enter relative w-full max-w-3xl overflow-visible border-[8px] border-[#191716] px-8 py-14 shadow-[18px_24px_55px_rgba(42,25,13,0.5)] sm:px-20 sm:py-20">
+          <div className="pointer-events-none absolute inset-3 border border-[#a83f4c]/80" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-5 border border-[#a83f4c]/40" aria-hidden="true" />
+          <div className="absolute inset-y-[-8px] left-0 w-11 border-x border-black/40 bg-[#7d2131] shadow-[inset_-7px_0_12px_rgba(0,0,0,0.35)] sm:w-16" />
+          <div className="absolute -left-7 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-8 sm:-left-9 sm:gap-11" aria-hidden="true">
+            {[0, 1, 2, 3, 4, 5].map((argola) => (
+              <span key={argola} className="relative block h-4 w-12 rounded-full border-[3px] border-[#171514] shadow-[0_2px_2px_rgba(0,0,0,0.45)] sm:w-16">
+                <span className="absolute -right-1 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-[#b8aca0] bg-[#2a2521]" />
+              </span>
             ))}
           </div>
 
-          <div className="absolute right-5 top-4 h-44 w-36 sm:right-10 sm:top-8" aria-hidden="true">
-            {coresBaloes.map((cor, index) => (
-              <span
-                key={cor}
-                className="aventura-balloon absolute h-12 w-10 rounded-[50%_50%_46%_46%] border-2 border-black/10 shadow-sm"
-                style={{
-                  backgroundColor: cor,
-                  left: `${(index % 3) * 34 + (index > 2 ? 12 : 0)}px`,
-                  top: `${Math.floor(index / 3) * 42 + (index % 2) * 8}px`,
-                  animationDelay: `${index * 180}ms`,
-                }}
-              />
-            ))}
-            <span className="absolute left-16 top-20 h-24 w-px rotate-6 bg-amber-100/60" />
-            <span className="absolute left-10 top-20 h-24 w-px -rotate-12 bg-amber-100/60" />
-          </div>
-
-          <div className="relative mx-auto mt-16 max-w-xl -rotate-1 border-4 border-[#ded0ad] bg-[#f4e8c9] px-5 py-10 text-center shadow-[0_8px_0_#2c1d13,0_15px_30px_rgba(0,0,0,0.3)] sm:mt-10 sm:px-10">
-            <span className="absolute inset-2 border-2 border-dashed border-[#8a7657]/60" aria-hidden="true" />
-            <p className="relative text-xs font-black uppercase tracking-[0.32em] text-[#9c4936]">Nosso álbum de</p>
-            <h1 className="relative mt-3 font-serif text-4xl font-black leading-none text-[#3b2b1f] sm:text-6xl">Aventuras</h1>
-            <div className="relative mx-auto my-7 flex items-center justify-center gap-3 text-[#9c4936]" aria-hidden="true">
-              <span className="h-px w-12 bg-current" /><span>✦</span><span className="h-px w-12 bg-current" />
+          <div className="relative mx-auto max-w-xl px-5 py-8 text-center sm:px-10">
+            <p className="aventura-title text-2xl font-black uppercase tracking-[0.16em] text-[#cf4e45] sm:text-4xl">Nosso livro de</p>
+            <h1 className="aventura-title mt-1 flex flex-wrap justify-center text-4xl font-black leading-none sm:text-7xl" aria-label="Aventuras">
+              {letrasAventuras.map((letra, index) => (
+                <span key={`${letra}-${index}`} className={index % 2 === 0 ? '-rotate-2' : 'rotate-2'} style={{ color: coresLetras[index] }}>
+                  {letra}
+                </span>
+              ))}
+            </h1>
+            <div className="mx-auto my-7 flex items-center justify-center gap-3 text-[#b34648]" aria-hidden="true">
+              <span className="h-px w-16 bg-current" /><span className="text-2xl text-[#d7b345]">◉</span><span className="h-px w-16 bg-current" />
             </div>
-            <p className="relative font-serif text-2xl font-black text-[#503724] sm:text-4xl">{info.nomeComprador}</p>
-            <p className="relative my-1 font-serif text-xl italic text-[#b45235]">&</p>
-            <p className="relative font-serif text-2xl font-black text-[#503724] sm:text-4xl">{info.nomePresenteado}</p>
+            <div className="mx-auto max-w-md -rotate-1 border border-[#d6c79f]/50 bg-[#e9dab4] px-4 py-5 shadow-lg">
+              <p className="font-serif text-2xl font-black text-[#322820] sm:text-4xl">{info.nomeComprador}</p>
+              <p className="relative my-1 font-serif text-xl italic text-[#9b3440]">&</p>
+              <p className="font-serif text-2xl font-black text-[#322820] sm:text-4xl">{info.nomePresenteado}</p>
+            </div>
           </div>
 
           <div className="relative mx-auto mt-12 grid max-w-lg grid-cols-3 gap-2 sm:gap-4">
@@ -187,11 +207,10 @@ export default function ModeloAventuras({ presente, dados, isDemo = false, isPre
               </div>
             ))}
           </div>
-          <p className="relative mt-8 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[#e5ce9d]/75">Nossa maior viagem começou quando nos encontramos</p>
         </div>
       </header>
 
-      <section className="mx-auto max-w-5xl space-y-20 px-4 py-20 sm:px-8">
+      <section className="relative z-10 mx-auto max-w-5xl space-y-20 px-4 py-20 sm:px-8">
         {paginas.map((fotosDaPagina, paginaIndex) => (
           <PaginaRevelada key={paginaIndex} index={paginaIndex}>
             <div className="aventura-paper relative overflow-hidden rounded-sm px-6 pb-16 pt-20 shadow-[12px_18px_45px_rgba(51,32,17,0.3)] sm:px-14 sm:pb-20">
@@ -216,11 +235,6 @@ export default function ModeloAventuras({ presente, dados, isDemo = false, isPre
                   return <FotoAlbum key={`${foto.url}-${indexReal}`} foto={foto} index={indexReal} borrada={isPreview} />;
                 })}
               </div>
-              <p className="relative mt-14 text-center font-serif text-sm font-bold italic text-[#79583b]/70">
-                {paginaIndex === 0 && 'O começo de tudo — onde a nossa rota se encontrou.'}
-                {paginaIndex === 1 && 'Entre risadas e descobertas, fizemos do mundo o nosso lugar.'}
-                {paginaIndex === 2 && 'Ainda temos tantos destinos e capítulos para viver.'}
-              </p>
             </div>
           </PaginaRevelada>
         ))}
@@ -228,23 +242,18 @@ export default function ModeloAventuras({ presente, dados, isDemo = false, isPre
         <PaginaRevelada index={3}>
           <div className="aventura-paper relative overflow-hidden px-7 py-20 text-center shadow-[12px_18px_45px_rgba(51,32,17,0.3)] sm:px-16 sm:py-24">
             <span className="absolute -right-5 -top-5 rotate-12 text-8xl text-[#d7a83d]/35" aria-hidden="true">★</span>
-            <span className="absolute bottom-5 left-7 -rotate-12 border-4 border-double border-[#527b74]/40 px-4 py-3 text-xs font-black uppercase tracking-widest text-[#527b74]/60" aria-hidden="true">Próxima parada: para sempre</span>
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[#a34f38]">Uma mensagem para você</p>
-            <h2 className="mt-5 font-serif text-4xl font-black text-[#3c2b1e] sm:text-5xl">A melhor aventura é ao seu lado</h2>
-            <div className="mx-auto my-8 h-px w-24 bg-[#8e6543]/35" />
             <p className="mx-auto max-w-2xl whitespace-pre-wrap font-serif text-lg italic leading-[1.9] text-[#5f4733] sm:text-xl">{info.textoPoema}</p>
-            <p className="mt-10 font-serif text-xl font-black text-[#9c4936]">Com amor, {info.nomeComprador} ♥</p>
           </div>
         </PaginaRevelada>
       </section>
 
       {isDemo && (
-        <section className="flex justify-center px-6 pb-24 pt-8">
+        <section className="relative z-10 flex justify-center px-6 pb-24 pt-8">
           <Link
             href="/criar?modelo=aventuras"
             className="rounded-full bg-[#a64632] px-8 py-4 text-center text-lg font-black text-[#fff8e7] shadow-xl shadow-[#3a2518]/30 transition hover:scale-105 hover:bg-[#8f3929] active:scale-95 sm:px-10"
           >
-            Quero viver esta aventura ♥
+            Quero usar este modelo
           </Link>
         </section>
       )}

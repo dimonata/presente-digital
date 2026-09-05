@@ -51,15 +51,12 @@ function MiniaturaModelo({ modeloId }: { modeloId: ModeloId }) {
       <div className="overflow-hidden rounded-[1.75rem] bg-[#c99c60] px-4 pb-5 pt-6 text-[#3e2b1e]">
         <div className="relative mx-auto mt-2 min-h-80 max-w-[220px] rounded-r-2xl border-[5px] border-[#342319] bg-[#59402d] px-5 py-8 shadow-2xl">
           <span className="absolute inset-y-0 left-0 w-5 border-r border-black/30 bg-[#332218]" />
-          <div className="absolute right-3 top-3 flex w-16 flex-wrap gap-1" aria-hidden="true">
-            {['#d84a3a', '#e3b23c', '#4a8f9d', '#739c58', '#e47a45', '#8d5a9f'].map((cor) => (
-              <span key={cor} className="h-4 w-3 rounded-full" style={{ backgroundColor: cor }} />
-            ))}
-          </div>
-          <div className="mt-9 -rotate-2 border-2 border-[#ded0ad] bg-[#f4e8c9] px-3 py-7 text-center shadow-lg">
-            <p className="text-[8px] font-black uppercase tracking-[0.22em] text-[#9c4936]">Nosso álbum de</p>
-            <h4 className="mt-1 font-serif text-2xl font-black">Aventuras</h4>
-            <p className="mt-5 font-serif text-sm font-black">João & Ana</p>
+          <div className="pointer-events-none absolute inset-2 border border-[#a83f4c]/70" />
+          <div className="mt-7 px-2 py-7 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#cf4e45]">Nosso livro de</p>
+            <h4 className="mt-1 font-serif text-2xl font-black text-[#e3b846]">AVENTURAS</h4>
+            <div className="mx-auto my-4 h-px w-16 bg-[#a83f4c]" />
+            <p className="-rotate-1 bg-[#e9dab4] px-2 py-3 font-serif text-sm font-black text-[#322820]">João & Ana</p>
           </div>
           <div className="mt-7 grid grid-cols-3 gap-1 text-center">
             {['1 ano', '2 meses', '12 dias'].map((tempo) => (

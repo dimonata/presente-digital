@@ -48,20 +48,19 @@ const modelosDoCarrossel = Object.entries(modelosDisponiveis) as Array<
 function MiniaturaModelo({ modeloId }: { modeloId: ModeloId }) {
   if (modeloId === 'aventuras') {
     return (
-      <div className="overflow-hidden rounded-[1.75rem] bg-[#c99c60] px-4 pb-5 pt-6 text-[#3e2b1e]">
-        <div className="relative mx-auto mt-2 min-h-80 max-w-[220px] rounded-r-2xl border-[5px] border-[#342319] bg-[#59402d] px-5 py-8 shadow-2xl">
-          <span className="absolute inset-y-0 left-0 w-5 border-r border-black/30 bg-[#332218]" />
-          <div className="pointer-events-none absolute inset-2 border border-[#a83f4c]/70" />
-          <div className="mt-7 px-2 py-7 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#cf4e45]">Nosso livro de</p>
-            <h4 className="mt-1 font-serif text-2xl font-black text-[#e3b846]">AVENTURAS</h4>
-            <div className="mx-auto my-4 h-px w-16 bg-[#a83f4c]" />
-            <p className="-rotate-1 bg-[#e9dab4] px-2 py-3 font-serif text-sm font-black text-[#322820]">João & Ana</p>
-          </div>
-          <div className="mt-7 grid grid-cols-3 gap-1 text-center">
-            {['1 ano', '2 meses', '12 dias'].map((tempo) => (
-              <span key={tempo} className="-rotate-1 bg-[#d9b977] px-1 py-2 text-[8px] font-black">{tempo}</span>
-            ))}
+      <div className="flex min-h-[390px] items-center overflow-hidden rounded-[1.75rem] bg-[#c99c60] px-5 py-8 text-[#3e2b1e]">
+        <div className="relative mx-auto aspect-[4/3] w-full max-w-[225px] -rotate-3 border-[5px] border-[#171616] bg-[#222120] shadow-[12px_16px_30px_rgba(40,24,13,0.5)]">
+          <span className="absolute inset-y-[-5px] left-0 w-8 border-x border-black/40 bg-[#7b2432]" />
+          <div className="pointer-events-none absolute inset-2 border border-[#a83f4c]/80" />
+          <div className="pointer-events-none absolute inset-3.5 border border-[#a83f4c]/40" />
+          <div className="absolute inset-y-[12%] left-[20%] right-[6%] flex items-center justify-center">
+            <span className="absolute h-[90%] w-[92%] rounded-[50%] border border-[#a83f4c]/70" />
+            <div className="relative text-center">
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#cf544d]">Nosso</p>
+              <p className="font-serif text-base font-black uppercase text-[#eadbb2]">Livro de</p>
+              <h4 className="font-serif text-xl font-black text-[#e3b846]">AVENTURAS</h4>
+              <span className="mx-auto mt-3 block h-8 w-8 rounded-full border-2 border-[#a94a49] bg-[#d8c79e]" />
+            </div>
           </div>
         </div>
       </div>

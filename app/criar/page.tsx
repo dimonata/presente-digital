@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from 'react';
-import ModeloPolaroid from '../components/modelos/ModeloPolaroid';
+import { useEffect, useRef, useState } from 'react';
+import { isModeloDisponivel, modelosDisponiveis, type ModeloId } from '../components/modelos';
 import { salvarRascunhoPagamento } from '@/lib/rascunhoPagamento';
 
 type MusicaSpotify = {
@@ -64,6 +64,13 @@ async function otimizarFoto(arquivo: File) {
 }
 
 export default function CriarPresentePage() {
+  const [modeloSelecionado, setModeloSelecionado] = useState<ModeloId>('polaroid');
+
+  useEffect(() => {
+    const modeloDaUrl = new URLSearchParams(window.location.search).get('modelo');
+    if (modeloDaUrl && isModeloDisponivel(modeloDaUrl)) setModeloSelecionado(modeloDaUrl);
+  }, []);
+
   // Estados básicos
   const [nomeComprador, setNomeComprador] = useState('');
   const [nomePresenteado, setNomePresenteado] = useState('');
@@ -175,6 +182,7 @@ export default function CriarPresentePage() {
       }
 
       await salvarRascunhoPagamento(resultado.referencia, {
+        modelo: modeloSelecionado,
         nomeComprador,
         nomePresenteado,
         emailEntrega,
@@ -208,6 +216,7 @@ export default function CriarPresentePage() {
       referenciaCupomRef.current ||= crypto.randomUUID();
       const formData = new FormData();
       formData.append('nomeComprador', nomeComprador);
+      formData.append('modelo', modeloSelecionado);
       formData.append('nomePresenteado', nomePresenteado);
       formData.append('emailEntrega', emailEntrega);
       formData.append('dataInicioNamoro', dataInicioNamoro);
@@ -240,6 +249,7 @@ export default function CriarPresentePage() {
   };
 
   if (visualizandoPrevia && musicaSelecionada) {
+    const ModeloPrevia = modelosDisponiveis[modeloSelecionado].componente;
     const dadosPrevia = {
       nomeComprador,
       nomePresenteado,
@@ -309,7 +319,7 @@ export default function CriarPresentePage() {
           )}
         </aside>
 
-        <ModeloPolaroid dados={dadosPrevia} isPreview />
+        <ModeloPrevia dados={dadosPrevia} isPreview />
       </main>
     );
   }
@@ -327,10 +337,33 @@ export default function CriarPresentePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10">
+          <section className="space-y-4" id="modelos">
+            <h2 className="border-b pb-2 text-xl font-bold text-zinc-800">1. Escolha o Modelo</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(Object.entries(modelosDisponiveis) as Array<[ModeloId, (typeof modelosDisponiveis)[ModeloId]]>).map(([modeloId, config]) => {
+                const selecionado = modeloSelecionado === modeloId;
+                return (
+                  <button
+                    key={modeloId}
+                    type="button"
+                    onClick={() => setModeloSelecionado(modeloId)}
+                    aria-pressed={selecionado}
+                    className={`rounded-2xl border-2 p-4 text-left transition ${selecionado ? 'border-red-600 bg-red-50 shadow-md' : 'border-zinc-200 bg-zinc-50 hover:border-zinc-400'}`}
+                  >
+                    <span className="block text-xs font-black uppercase tracking-widest text-red-600">{selecionado ? 'Selecionado' : 'Escolher'}</span>
+                    <span className="mt-1 block font-bold text-zinc-900">{config.nome}</span>
+                    <span className="mt-2 block text-sm text-zinc-500">
+                      {modeloId === 'aventuras' ? 'Álbum artesanal com mapas, selos, balões e páginas de viagem.' : 'Fotografias românticas no estilo clássico de Polaroid.'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
           
           {/* Seção 1: Informações Básicas */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">1. O Casal</h2>
+            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">2. O Casal</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-zinc-700 mb-1">Seu Nome</label>
@@ -361,7 +394,7 @@ export default function CriarPresentePage() {
 
           {/* Seção 2: Busca no Spotify */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">2. Trilha Sonora</h2>
+            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">3. Trilha Sonora</h2>
             
             {!musicaSelecionada ? (
               <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200">
@@ -413,7 +446,7 @@ export default function CriarPresentePage() {
 
           {/* Seção 3: Upload de Fotos */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">3. Suas 6 Fotos (Upload)</h2>
+            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">4. Suas 6 Fotos (Upload)</h2>
             <p className="text-xs text-zinc-500">Envie arquivos JPG, PNG, WEBP ou GIF de até 10 MB. As fotos serão otimizadas automaticamente.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -456,7 +489,7 @@ export default function CriarPresentePage() {
 
           {/* Seção 4: História */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">4. Nossa História</h2>
+            <h2 className="text-xl font-bold text-zinc-800 border-b pb-2">5. Nossa História</h2>
             <textarea rows={5} required value={textoPoema} onChange={(e) => setTextoPoema(e.target.value)} placeholder="Escreva aqui tudo o que você sente..." className="w-full border border-zinc-300 rounded-xl p-4 focus:ring-2 focus:ring-red-500 outline-none" />
           </section>
 

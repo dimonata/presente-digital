@@ -229,7 +229,7 @@ export default function ModeloPolaroid({ presente, dados: dadosProp, isDemo = fa
       {isDemo && (
         <section className="relative flex justify-center border-t border-red-900/10 px-6 pb-20 pt-12">
           <Link
-            href="/criar"
+            href="/criar?modelo=polaroid"
             className="flex items-center gap-3 rounded-full bg-red-700 px-8 py-4 text-center text-lg font-black text-white shadow-xl shadow-red-900/30 transition hover:scale-105 hover:bg-red-800 active:scale-95 sm:px-10"
           >
             Quero usar este modelo ❤️

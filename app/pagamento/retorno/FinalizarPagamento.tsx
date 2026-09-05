@@ -40,6 +40,7 @@ export default function FinalizarPagamento({ pagamentoId, referencia }: Props) {
         }
 
         const formData = new FormData();
+        formData.append('modelo', rascunho.modelo || 'polaroid');
         formData.append('nomeComprador', rascunho.nomeComprador);
         formData.append('nomePresenteado', rascunho.nomePresenteado);
         formData.append('emailEntrega', rascunho.emailEntrega);

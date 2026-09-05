@@ -1,6 +1,10 @@
 import type { ComponentType } from 'react';
 import ModeloPolaroid from './ModeloPolaroid';
+import ModeloAventuras from './ModeloAventuras';
 import type { ModeloProps } from './ModeloPolaroid';
+import type { ModeloId } from './config';
+
+export { isModeloDisponivel, type ModeloId } from './config';
 
 // 1. Ensinamos ao TypeScript exatamente o que é o "config"
 export type ConfiguracaoModelo = {
@@ -14,10 +18,8 @@ export const modelosDisponiveis = {
     nome: 'Estilo Retrô (Polaroid)',
     componente: ModeloPolaroid,
   },
-} satisfies Record<string, ConfiguracaoModelo>;
-
-export type ModeloId = keyof typeof modelosDisponiveis;
-
-export function isModeloDisponivel(modelo: string): modelo is ModeloId {
-  return Object.hasOwn(modelosDisponiveis, modelo);
-}
+  aventuras: {
+    nome: 'Álbum de Aventuras',
+    componente: ModeloAventuras,
+  },
+} satisfies Record<ModeloId, ConfiguracaoModelo>;

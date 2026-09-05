@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import TemaPolaroide from './components/modelos/ModeloPolaroid';
 import { modelosDisponiveis, type ConfiguracaoModelo, type ModeloId } from './components/modelos';
 import imagemQrCodeEmail from '../public/qr-code-email.png';
 import imagemQrCodeBuque from '../public/qr-code-buque.png';
@@ -46,8 +45,56 @@ const modelosDoCarrossel = Object.entries(modelosDisponiveis) as Array<
   [ModeloId, ConfiguracaoModelo]
 >;
 
+function MiniaturaModelo({ modeloId }: { modeloId: ModeloId }) {
+  if (modeloId === 'aventuras') {
+    return (
+      <div className="overflow-hidden rounded-[1.75rem] bg-[#c99c60] px-4 pb-5 pt-6 text-[#3e2b1e]">
+        <div className="relative mx-auto mt-2 min-h-80 max-w-[220px] rounded-r-2xl border-[5px] border-[#342319] bg-[#59402d] px-5 py-8 shadow-2xl">
+          <span className="absolute inset-y-0 left-0 w-5 border-r border-black/30 bg-[#332218]" />
+          <div className="absolute right-3 top-3 flex w-16 flex-wrap gap-1" aria-hidden="true">
+            {['#d84a3a', '#e3b23c', '#4a8f9d', '#739c58', '#e47a45', '#8d5a9f'].map((cor) => (
+              <span key={cor} className="h-4 w-3 rounded-full" style={{ backgroundColor: cor }} />
+            ))}
+          </div>
+          <div className="mt-9 -rotate-2 border-2 border-[#ded0ad] bg-[#f4e8c9] px-3 py-7 text-center shadow-lg">
+            <p className="text-[8px] font-black uppercase tracking-[0.22em] text-[#9c4936]">Nosso álbum de</p>
+            <h4 className="mt-1 font-serif text-2xl font-black">Aventuras</h4>
+            <p className="mt-5 font-serif text-sm font-black">João & Ana</p>
+          </div>
+          <div className="mt-7 grid grid-cols-3 gap-1 text-center">
+            {['1 ano', '2 meses', '12 dias'].map((tempo) => (
+              <span key={tempo} className="-rotate-1 bg-[#d9b977] px-1 py-2 text-[8px] font-black">{tempo}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-[1.75rem] bg-[#f5f2eb] px-4 pb-5 pt-6 text-center text-zinc-900">
+      <p className="font-serif text-xs italic text-red-700">João & Ana</p>
+      <h4 className="mt-1 font-serif text-lg font-black">Nossa história de amor</h4>
+      <div className="relative mx-auto mt-5 h-56 max-w-[220px]">
+        <div className="absolute left-2 top-1 w-28 -rotate-6 bg-white p-2 pb-7 shadow-xl">
+          <div className="h-24 bg-gradient-to-br from-red-200 via-rose-400 to-red-900" />
+        </div>
+        <div className="absolute right-1 top-16 w-28 rotate-6 bg-white p-2 pb-7 shadow-xl">
+          <div className="h-24 bg-gradient-to-br from-amber-100 via-red-300 to-rose-800" />
+        </div>
+        <span className="absolute left-1/2 top-20 -translate-x-1/2 text-3xl drop-shadow">❤️</span>
+      </div>
+      <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-red-700">Juntos há</p>
+        <p className="mt-1 font-serif text-sm font-black">1 ano • 2 meses • 12 dias</p>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [demoAberta, setDemoAberta] = useState<ModeloId | null>(null);
+  const ModeloDemonstracao = demoAberta ? modelosDisponiveis[demoAberta].componente : null;
 
   useEffect(() => {
     if (!demoAberta) return;
@@ -64,7 +111,7 @@ export default function LandingPage() {
     <main className="flex flex-col min-h-screen bg-black text-zinc-100 font-sans overflow-x-hidden relative">
       
       {/* Modal de Demonstração do Tema */}
-      {demoAberta === 'polaroid' && (
+      {ModeloDemonstracao && (
         <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex flex-col animate-fade-in">
           <div className="absolute top-0 left-0 w-full h-16 bg-black/80 backdrop-blur-md z-[300] flex items-center justify-between px-6 border-b border-white/10 shadow-xl">
             <span className="text-white/70 font-medium text-sm tracking-widest uppercase">Modo Demonstração</span>
@@ -77,8 +124,7 @@ export default function LandingPage() {
           </div>
           
           <div className="h-full w-full overflow-y-auto">
-            {/* Passando a prop como 'presente' e ativando a flag isDemo */}
-            <TemaPolaroide presente={dadosMockPolaroide} isDemo={true} />
+            <ModeloDemonstracao presente={dadosMockPolaroide} isDemo />
           </div>
         </div>
       )}
@@ -128,23 +174,7 @@ export default function LandingPage() {
                   >
                     <div className="mx-auto w-full max-w-[310px] rounded-[2.5rem] border-[7px] border-zinc-800 bg-[#f5f2eb] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition duration-300 group-hover:-translate-y-1 group-hover:border-red-900">
                       <div className="mb-3 flex justify-center"><span className="h-1.5 w-16 rounded-full bg-zinc-300" /></div>
-                      <div className="overflow-hidden rounded-[1.75rem] bg-[#f5f2eb] px-4 pb-5 pt-6 text-center text-zinc-900">
-                        <p className="font-serif text-xs italic text-red-700">João & Ana</p>
-                        <h4 className="mt-1 font-serif text-lg font-black">Nossa história de amor</h4>
-                        <div className="relative mx-auto mt-5 h-56 max-w-[220px]">
-                          <div className="absolute left-2 top-1 w-28 -rotate-6 bg-white p-2 pb-7 shadow-xl">
-                            <div className="h-24 bg-gradient-to-br from-red-200 via-rose-400 to-red-900" />
-                          </div>
-                          <div className="absolute right-1 top-16 w-28 rotate-6 bg-white p-2 pb-7 shadow-xl">
-                            <div className="h-24 bg-gradient-to-br from-amber-100 via-red-300 to-rose-800" />
-                          </div>
-                          <span className="absolute left-1/2 top-20 -translate-x-1/2 text-3xl drop-shadow">❤️</span>
-                        </div>
-                        <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-red-700">Juntos há</p>
-                          <p className="mt-1 font-serif text-sm font-black">1 ano • 2 meses • 12 dias</p>
-                        </div>
-                      </div>
+                      <MiniaturaModelo modeloId={modeloId} />
                     </div>
                     <div className="mx-auto mt-5 flex max-w-[310px] items-center justify-between gap-3">
                       <span className="font-bold text-zinc-100">{modelo.nome}</span>

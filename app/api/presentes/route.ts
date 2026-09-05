@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 import prisma from '../../../lib/prisma';
 import { enviarPresentePorEmail } from '@/lib/enviarPresentePorEmail';
+import { isModeloDisponivel } from '@/app/components/modelos/config';
 
 const PRECO_PRESENTE = 29.9;
 const TAMANHO_MAXIMO_FOTO = 500 * 1024;
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
+    const modeloInformado = formData.get('modelo');
     const nomeComprador = formData.get('nomeComprador') as string;
     const nomePresenteado = formData.get('nomePresenteado') as string;
     const emailEntrega = formData.get('emailEntrega');
@@ -48,6 +50,8 @@ export async function POST(request: Request) {
 
     if (
       !nomeComprador ||
+      typeof modeloInformado !== 'string' ||
+      !isModeloDisponivel(modeloInformado) ||
       !nomePresenteado ||
       typeof emailEntrega !== 'string' ||
       !/^\S+@\S+\.\S+$/.test(emailEntrega) ||
@@ -154,6 +158,7 @@ export async function POST(request: Request) {
 
     const novoPresente = await prisma.presente.create({
       data: {
+        modelo: modeloInformado,
         nomeComprador,
         nomePresenteado,
         dataInicioNamoro,

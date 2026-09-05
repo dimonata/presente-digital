@@ -1,6 +1,7 @@
 "use client";
 
 export type RascunhoPagamento = {
+  modelo: string;
   nomeComprador: string;
   nomePresenteado: string;
   emailEntrega: string;

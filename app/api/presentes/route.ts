@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 import prisma from '../../../lib/prisma';
 import { enviarPresentePorEmail } from '@/lib/enviarPresentePorEmail';
 
@@ -14,6 +15,13 @@ type PagamentoMercadoPago = {
   currency_id?: string;
 };
 
+function cupomValido(cupomInformado: string, cupomConfigurado: string) {
+  const informado = Buffer.from(cupomInformado.trim().toUpperCase());
+  const configurado = Buffer.from(cupomConfigurado.trim().toUpperCase());
+
+  return informado.length > 0 && informado.length === configurado.length && timingSafeEqual(informado, configurado);
+}
+
 async function tentarEnviarPresentePorEmail(parametros: Parameters<typeof enviarPresentePorEmail>[0]) {
   try {
     return await enviarPresentePorEmail(parametros);
@@ -25,11 +33,6 @@ async function tentarEnviarPresentePorEmail(parametros: Parameters<typeof enviar
 
 export async function POST(request: Request) {
   try {
-    const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
-    if (!accessToken) {
-      return NextResponse.json({ success: false, error: 'Pagamento não configurado.' }, { status: 503 });
-    }
-
     const formData = await request.formData();
 
     const nomeComprador = formData.get('nomeComprador') as string;
@@ -38,8 +41,10 @@ export async function POST(request: Request) {
     const dataInicioNamoro = formData.get('dataInicioNamoro') as string;
     const textoPoema = formData.get('textoPoema') as string;
     const idMusicaSpotify = formData.get('idMusicaSpotify') as string;
-    const pagamentoId = formData.get('pagamentoId');
-    const referenciaPagamento = formData.get('referenciaPagamento');
+    const pagamentoIdInformado = formData.get('pagamentoId');
+    const referenciaPagamentoInformada = formData.get('referenciaPagamento');
+    const cupomInformado = formData.get('cupom');
+    const referenciaCupom = formData.get('referenciaCupom');
 
     if (
       !nomeComprador ||
@@ -48,38 +53,63 @@ export async function POST(request: Request) {
       !/^\S+@\S+\.\S+$/.test(emailEntrega) ||
       !dataInicioNamoro ||
       !textoPoema ||
-      !idMusicaSpotify ||
-      typeof pagamentoId !== 'string' ||
-      typeof referenciaPagamento !== 'string'
+      !idMusicaSpotify
     ) {
       return NextResponse.json({ success: false, error: 'Dados obrigatórios ausentes.' }, { status: 400 });
     }
 
-    const respostaPagamento = await fetch(
-      `https://api.mercadopago.com/v1/payments/${encodeURIComponent(pagamentoId)}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        cache: 'no-store',
-      },
-    );
+    const usandoCupom = typeof cupomInformado === 'string' && cupomInformado.trim().length > 0;
+    let pagamentoId: string;
 
-    if (!respostaPagamento.ok) {
-      return NextResponse.json({ success: false, error: 'Pagamento não encontrado.' }, { status: 402 });
-    }
+    if (usandoCupom) {
+      const cupomConfigurado = process.env.CUPOM_100_DESCONTO;
+      const referenciaValida =
+        typeof referenciaCupom === 'string' &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(referenciaCupom);
 
-    const pagamento = (await respostaPagamento.json()) as PagamentoMercadoPago;
-    const valorCorreto = Math.abs((pagamento.transaction_amount ?? 0) - PRECO_PRESENTE) < 0.001;
+      if (!cupomConfigurado || !referenciaValida || !cupomValido(cupomInformado, cupomConfigurado)) {
+        return NextResponse.json({ success: false, error: 'Cupom inválido ou expirado.' }, { status: 400 });
+      }
 
-    if (
-      pagamento.status !== 'approved' ||
-      pagamento.external_reference !== referenciaPagamento ||
-      pagamento.currency_id !== 'BRL' ||
-      !valorCorreto
-    ) {
-      return NextResponse.json(
-        { success: false, error: 'O pagamento ainda não foi aprovado ou não corresponde a este pedido.' },
-        { status: 402 },
+      pagamentoId = `cupom:${referenciaCupom}`;
+    } else {
+      const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+      if (!accessToken) {
+        return NextResponse.json({ success: false, error: 'Pagamento não configurado.' }, { status: 503 });
+      }
+
+      if (typeof pagamentoIdInformado !== 'string' || typeof referenciaPagamentoInformada !== 'string') {
+        return NextResponse.json({ success: false, error: 'Dados do pagamento ausentes.' }, { status: 400 });
+      }
+
+      const respostaPagamento = await fetch(
+        `https://api.mercadopago.com/v1/payments/${encodeURIComponent(pagamentoIdInformado)}`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: 'no-store',
+        },
       );
+
+      if (!respostaPagamento.ok) {
+        return NextResponse.json({ success: false, error: 'Pagamento não encontrado.' }, { status: 402 });
+      }
+
+      const pagamento = (await respostaPagamento.json()) as PagamentoMercadoPago;
+      const valorCorreto = Math.abs((pagamento.transaction_amount ?? 0) - PRECO_PRESENTE) < 0.001;
+
+      if (
+        pagamento.status !== 'approved' ||
+        pagamento.external_reference !== referenciaPagamentoInformada ||
+        pagamento.currency_id !== 'BRL' ||
+        !valorCorreto
+      ) {
+        return NextResponse.json(
+          { success: false, error: 'O pagamento ainda não foi aprovado ou não corresponde a este pedido.' },
+          { status: 402 },
+        );
+      }
+
+      pagamentoId = pagamentoIdInformado;
     }
 
     const presenteExistente = await prisma.presente.findUnique({

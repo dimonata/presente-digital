@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import ModeloPolaroid from '../components/modelos/ModeloPolaroid';
 import { salvarRascunhoPagamento } from '@/lib/rascunhoPagamento';
 
@@ -78,7 +78,10 @@ export default function CriarPresentePage() {
   const [musicaSelecionada, setMusicaSelecionada] = useState<MusicaSpotify | null>(null);
   const [visualizandoPrevia, setVisualizandoPrevia] = useState(false);
   const [iniciandoPagamento, setIniciandoPagamento] = useState(false);
+  const [publicandoCupom, setPublicandoCupom] = useState(false);
+  const [cupom, setCupom] = useState('');
   const [erroPagamento, setErroPagamento] = useState('');
+  const referenciaCupomRef = useRef<string | null>(null);
   
   // Estado das 6 Fotos (agora suportando arquivo de Upload e Preview)
   const [fotos, setFotos] = useState<FotoFormulario[]>(criarFotosVazias);
@@ -191,6 +194,51 @@ export default function CriarPresentePage() {
     }
   };
 
+  const publicarComCupom = async () => {
+    if (!musicaSelecionada || fotos.some((foto) => !foto.arquivo)) return;
+    if (!cupom.trim()) {
+      setErroPagamento('Digite um cupom antes de aplicar.');
+      return;
+    }
+
+    setPublicandoCupom(true);
+    setErroPagamento('');
+
+    try {
+      referenciaCupomRef.current ||= crypto.randomUUID();
+      const formData = new FormData();
+      formData.append('nomeComprador', nomeComprador);
+      formData.append('nomePresenteado', nomePresenteado);
+      formData.append('emailEntrega', emailEntrega);
+      formData.append('dataInicioNamoro', dataInicioNamoro);
+      formData.append('textoPoema', textoPoema);
+      formData.append('idMusicaSpotify', musicaSelecionada.id);
+      formData.append('cupom', cupom.trim());
+      formData.append('referenciaCupom', referenciaCupomRef.current);
+
+      fotos.forEach((foto, index) => {
+        formData.append(`foto_${index}`, foto.arquivo as File);
+        formData.append(`legenda_${index}`, foto.legenda);
+      });
+
+      const resposta = await fetch('/api/presentes', { method: 'POST', body: formData });
+      const resultado = (await resposta.json()) as {
+        success?: boolean;
+        id?: string;
+        error?: string;
+      };
+
+      if (!resposta.ok || !resultado.success || !resultado.id) {
+        throw new Error(resultado.error || 'Não foi possível aplicar o cupom.');
+      }
+
+      window.location.assign(`/presente/${resultado.id}`);
+    } catch (error) {
+      setErroPagamento(error instanceof Error ? error.message : 'Não foi possível aplicar o cupom.');
+      setPublicandoCupom(false);
+    }
+  };
+
   if (visualizandoPrevia && musicaSelecionada) {
     const dadosPrevia = {
       nomeComprador,
@@ -210,7 +258,7 @@ export default function CriarPresentePage() {
           <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="text-center sm:text-left">
               <p className="font-bold text-amber-300">Prévia do seu presente</p>
-              <p className="text-sm text-zinc-300">As fotos serão liberadas e a página será criada após o pagamento.</p>
+              <p className="text-sm text-zinc-300">As fotos serão liberadas após o pagamento ou a aplicação de um cupom válido.</p>
             </div>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <button
@@ -223,12 +271,36 @@ export default function CriarPresentePage() {
               <button
                 type="button"
                 onClick={iniciarPagamento}
-                disabled={iniciandoPagamento}
+                disabled={iniciandoPagamento || publicandoCupom}
                 className="rounded-full bg-red-600 px-6 py-3 font-bold text-white transition hover:bg-red-700 disabled:cursor-wait disabled:opacity-60"
               >
                 {iniciandoPagamento ? 'Abrindo Mercado Pago…' : 'Pagar e publicar • R$ 29,90'}
               </button>
             </div>
+          </div>
+          <div className="mx-auto mt-4 flex max-w-5xl flex-col gap-2 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-end">
+            <label htmlFor="cupom" className="text-center text-sm font-bold text-zinc-300 sm:text-left">Tem um cupom?</label>
+            <input
+              id="cupom"
+              type="text"
+              value={cupom}
+              onChange={(evento) => {
+                setCupom(evento.target.value.toUpperCase());
+                referenciaCupomRef.current = null;
+              }}
+              disabled={iniciandoPagamento || publicandoCupom}
+              placeholder="DIGITE SEU CUPOM"
+              autoComplete="off"
+              className="min-w-0 rounded-full border border-zinc-600 bg-zinc-900 px-5 py-3 text-center font-black uppercase tracking-wider text-white outline-none transition placeholder:text-zinc-600 focus:border-amber-400 sm:w-56"
+            />
+            <button
+              type="button"
+              onClick={publicarComCupom}
+              disabled={iniciandoPagamento || publicandoCupom}
+              className="rounded-full border border-amber-400/50 bg-amber-400/10 px-6 py-3 font-black text-amber-300 transition hover:bg-amber-400/20 disabled:cursor-wait disabled:opacity-60"
+            >
+              {publicandoCupom ? 'Publicando…' : 'Aplicar cupom'}
+            </button>
           </div>
           {erroPagamento && (
             <p role="alert" className="mx-auto mt-3 max-w-5xl text-center text-sm font-semibold text-red-300 sm:text-right">

@@ -342,6 +342,172 @@ body {
   }
 }
 
+@keyframes aventura-balloon-rise {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-5deg);
+  }
+  45% {
+    transform: translate3d(var(--balloon-drift), -58vh, 0) rotate(5deg);
+  }
+  100% {
+    transform: translate3d(0, -125vh, 0) rotate(-3deg);
+  }
+}
+
+@keyframes aventura-cluster-float {
+  0%, 100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+
+.aventura-sky {
+  background-color: #d9eef0;
+  background-image:
+    radial-gradient(circle at 15% 14%, rgb(255 255 255 / 75%) 0 2px, transparent 3px),
+    radial-gradient(circle at 83% 34%, rgb(255 255 255 / 50%) 0 1px, transparent 2px),
+    linear-gradient(180deg, #bfe5ec 0%, #e4f2ed 48%, #f5e7bd 100%);
+  background-size: 28px 31px, 37px 41px, 100% 100%;
+}
+
+.aventura-balloon-rise {
+  position: absolute;
+  bottom: -150px;
+  left: var(--balloon-left);
+  width: var(--balloon-size);
+  height: calc(var(--balloon-size) + 9px);
+  border: 1px solid rgb(47 54 49 / 16%);
+  border-radius: 52% 48% 48% 52% / 48% 48% 52% 52%;
+  background: var(--balloon-color);
+  box-shadow:
+    inset 7px 5px 9px rgb(255 255 255 / 24%),
+    0 8px 15px rgb(44 74 84 / 14%);
+  opacity: 0.42;
+  animation: aventura-balloon-rise var(--balloon-duration) var(--balloon-delay) linear infinite;
+}
+
+.aventura-balloon-rise::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-right: 4px solid transparent;
+  border-bottom: 0;
+  border-left: 4px solid transparent;
+  border-top: 7px solid var(--balloon-color);
+  transform: translateX(-50%);
+}
+
+.aventura-balloon-rise::after {
+  content: '';
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  width: 1px;
+  height: calc(var(--balloon-size) + 34px);
+  background: rgb(77 72 61 / 35%);
+  transform: translateX(-50%) rotate(3deg);
+  transform-origin: top;
+}
+
+.aventura-balloon-cluster {
+  transform-origin: 50% 65%;
+  animation: aventura-cluster-float 4.5s ease-in-out infinite;
+}
+
+.aventura-cloud {
+  position: absolute;
+  width: 180px;
+  height: 48px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 38%);
+  filter: blur(1px);
+}
+
+.aventura-cloud::before,
+.aventura-cloud::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.aventura-cloud::before {
+  left: 28px;
+  width: 72px;
+  height: 72px;
+}
+
+.aventura-cloud::after {
+  right: 30px;
+  width: 94px;
+  height: 94px;
+}
+
+.aventura-cloud-one {
+  left: -45px;
+  top: 12%;
+  transform: scale(.8);
+}
+
+.aventura-cloud-two {
+  right: -70px;
+  top: 48%;
+  transform: scale(1.15);
+}
+
+.aventura-badge {
+  border: 2px solid rgb(83 63 42 / 45%);
+  border-radius: 3px;
+  background: #f0c347;
+  padding: .5rem .8rem;
+  color: #56442f;
+  font-size: .67rem;
+  font-weight: 900;
+  letter-spacing: .2em;
+  box-shadow: 3px 4px 0 rgb(84 73 54 / 15%);
+}
+
+.aventura-tape {
+  border: 1px solid rgb(255 255 255 / 48%);
+  background-color: rgb(239 196 76 / 58%);
+  background-image: repeating-linear-gradient(90deg, transparent 0 8px, rgb(255 255 255 / 12%) 8px 10px);
+  box-shadow: 0 2px 5px rgb(65 75 66 / 12%);
+  backdrop-filter: blur(2px);
+}
+
+.aventura-letter {
+  background-image:
+    linear-gradient(rgb(76 113 121 / 8%) 1px, transparent 1px),
+    radial-gradient(circle at 12% 18%, rgb(128 90 48 / 6%) 0 1px, transparent 2px);
+  background-size: 100% 2rem, 17px 19px;
+}
+
+.aventura-postmark {
+  border: 2px solid rgb(188 73 61 / 45%);
+  border-radius: 50%;
+  padding: .55rem;
+  color: rgb(188 73 61 / 55%);
+  font-size: .53rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1.15;
+}
+
+@media (max-width: 767px) {
+  .aventura-balloon-rise {
+    opacity: .3;
+  }
+  .aventura-postmark {
+    opacity: .45;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-reveal,
   .polaroid-reveal,
@@ -357,6 +523,11 @@ body {
   }
 
   .aventura-floating-balloon {
+    animation: none;
+  }
+
+  .aventura-balloon-rise,
+  .aventura-balloon-cluster {
     animation: none;
   }
 

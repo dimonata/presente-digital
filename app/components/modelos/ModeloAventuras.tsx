@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import SpotifyPlayer from '../SpotifyPlayer';
 import type { ModeloProps } from './ModeloPolaroid';
@@ -55,34 +56,17 @@ function calcularTempoJuntos(dataInicioNamoro: string) {
 }
 
 function CasaComBaloes() {
-  const cores = ['#e84d4d', '#f4c943', '#4d9ed2', '#75a956', '#e57b37', '#9767a9'];
-  const posicoes = [
-    [124, 35], [150, 25], [176, 38], [104, 58], [135, 58], [165, 58], [196, 60],
-    [119, 82], [151, 79], [183, 84], [90, 83], [211, 86], [141, 105], [172, 106],
-  ];
-
   return (
-    <svg viewBox="0 0 300 270" className="h-auto w-full drop-shadow-[0_18px_18px_rgba(41,78,91,0.18)]" aria-hidden="true">
-      <g className="aventura-balloon-cluster">
-        {posicoes.map(([cx, cy], index) => (
-          <g key={`${cx}-${cy}`}>
-            <path d={`M${cx} ${cy + 17} L151 177`} stroke="#7b6854" strokeWidth="0.8" opacity=".42" />
-            <ellipse cx={cx} cy={cy} rx="14" ry="17" fill={cores[index % cores.length]} stroke="#fff" strokeOpacity=".34" />
-            <path d={`M${cx - 5} ${cy - 10} Q${cx - 9} ${cy - 1} ${cx - 5} ${cy + 5}`} fill="none" stroke="#fff" strokeWidth="2" opacity=".38" />
-            <path d={`M${cx - 3} ${cy + 16} L${cx} ${cy + 21} L${cx + 3} ${cy + 16}Z`} fill={cores[index % cores.length]} />
-          </g>
-        ))}
-      </g>
-      <path d="M77 194 151 139l74 55v59H77Z" fill="#eee0b5" stroke="#42362d" strokeWidth="4" />
-      <path d="m62 195 89-68 89 68-14 10-75-57-76 57Z" fill="#744736" stroke="#42362d" strokeWidth="4" />
-      <rect x="94" y="198" width="34" height="55" fill="#c65a45" stroke="#42362d" strokeWidth="3" />
-      <rect x="172" y="190" width="31" height="28" fill="#7eb2c4" stroke="#42362d" strokeWidth="3" />
-      <path d="M187.5 190v28M172 204h31" stroke="#f7edcf" strokeWidth="3" />
-      <rect x="142" y="211" width="25" height="42" fill="#87604b" stroke="#42362d" strokeWidth="3" />
-      <circle cx="162" cy="233" r="2" fill="#f4c943" />
-      <rect x="211" y="211" width="10" height="42" fill="#7e553e" />
-      <path d="M67 253h169" stroke="#42362d" strokeWidth="5" strokeLinecap="round" />
-    </svg>
+    <div className="aventura-balloon-cluster relative aspect-[2/3] w-full">
+      <Image
+        src="/images/casa-aventura-baloes.png"
+        alt="Casa vitoriana colorida flutuando sob centenas de balões"
+        fill
+        priority
+        sizes="(max-width: 767px) 390px, 460px"
+        className="object-contain drop-shadow-[0_18px_18px_rgba(41,78,91,0.18)]"
+      />
+    </div>
   );
 }
 

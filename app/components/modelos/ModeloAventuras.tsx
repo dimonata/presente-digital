@@ -145,6 +145,8 @@ export default function ModeloAventuras({ presente, dados, isDemo = false, isPre
         <SpotifyPlayer trackId={info.idMusicaSpotify} />
       </div>
 
+      <div className="aventura-paradise-bg pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
+
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
         <span className="aventura-cloud aventura-cloud-one" /><span className="aventura-cloud aventura-cloud-two" />
         {baloes.map((balao, index) => (

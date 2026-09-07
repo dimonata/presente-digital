@@ -388,7 +388,7 @@ export default function CriarPresentePage() {
                 placeholder="voce@exemplo.com"
                 className="w-full border border-zinc-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-500 outline-none"
               />
-              <p className="mt-1 text-xs text-zinc-500">Enviaremos o link e o QR Code após a confirmação do pagamento.</p>
+              <p className="mt-1 text-xs text-zinc-500">Enviaremos o link, o QR Code, a capa do modelo e uma arte com fotos pronta para postar nos Stories.</p>
             </div>
           </section>
 

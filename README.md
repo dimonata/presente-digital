@@ -1,5 +1,21 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## E-mail transacional (Mailjet)
+
+O envio após a compra usa a API transacional v3.1 do Mailjet. Crie e verifique um remetente ou domínio no Mailjet e configure estas variáveis no ambiente local e na hospedagem:
+
+```env
+MAILJET_API_KEY="sua-chave-pública"
+MAILJET_SECRET_KEY="sua-chave-secreta"
+EMAIL_FROM="presente@seu-dominio.com.br"
+EMAIL_FROM_NAME="Letter Love"
+APP_URL="https://seu-dominio.com.br"
+```
+
+Para boa entregabilidade, autentique no painel do Mailjet o mesmo domínio usado em `EMAIL_FROM` e configure os registros SPF e DKIM solicitados. As chaves devem ficar somente nas variáveis do servidor e nunca no código ou no navegador.
+
+Cada e-mail inclui o link do presente, o QR Code, a capa correspondente ao modelo escolhido e uma arte JPG de 1080 × 1920 montada automaticamente com três fotos do usuário para publicação em Stories.
+
 ## Getting Started
 
 First, run the development server:

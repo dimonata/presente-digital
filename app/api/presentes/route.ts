@@ -8,6 +8,8 @@ const PRECO_PRESENTE = 29.9;
 const TAMANHO_MAXIMO_FOTO = 500 * 1024;
 const TIPOS_DE_FOTO_ACEITOS = ['image/jpeg'];
 
+export const runtime = 'nodejs';
+
 type PagamentoMercadoPago = {
   id?: number;
   status?: string;
@@ -118,15 +120,26 @@ export async function POST(request: Request) {
 
     const presenteExistente = await prisma.presente.findUnique({
       where: { pagamentoId },
-      select: { id: true },
+      select: {
+        id: true,
+        modelo: true,
+        nomeComprador: true,
+        nomePresenteado: true,
+        textoPoema: true,
+        fotos: { select: { url: true, legenda: true } },
+      },
     });
 
     if (presenteExistente) {
       const emailEnviado = await tentarEnviarPresentePorEmail({
         email: emailEntrega,
-        nomePresenteado,
+        nomeComprador: presenteExistente.nomeComprador,
+        nomePresenteado: presenteExistente.nomePresenteado,
         presenteId: presenteExistente.id,
         pagamentoId,
+        modelo: presenteExistente.modelo,
+        textoPoema: presenteExistente.textoPoema,
+        fotos: presenteExistente.fotos,
       });
       return NextResponse.json({ success: true, id: presenteExistente.id, emailEnviado });
     }
@@ -173,9 +186,13 @@ export async function POST(request: Request) {
 
     const emailEnviado = await tentarEnviarPresentePorEmail({
       email: emailEntrega,
+      nomeComprador,
       nomePresenteado,
       presenteId: novoPresente.id,
       pagamentoId,
+      modelo: modeloInformado,
+      textoPoema,
+      fotos: fotosParaSalvar,
     });
 
     return NextResponse.json({ success: true, id: novoPresente.id, emailEnviado });

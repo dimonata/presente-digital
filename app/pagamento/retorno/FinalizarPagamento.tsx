@@ -98,7 +98,7 @@ export default function FinalizarPagamento({ pagamentoId, referencia }: Props) {
         <h1 className="text-3xl font-black text-zinc-900">Seu presente está pronto!</h1>
         <p className="mt-3 text-zinc-600">
           {estado.emailEnviado
-            ? 'Pagamento confirmado. Enviamos o link e o QR Code para o e-mail informado.'
+            ? 'Pagamento confirmado. Enviamos o link, o QR Code, a capa do modelo e a arte para Stories ao e-mail informado.'
             : 'Pagamento confirmado e página publicada. O e-mail não pôde ser enviado, mas você já pode abrir o presente abaixo.'}
         </p>
         <Link
